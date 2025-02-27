@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <base href="/">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firma Üyelik Sayfası</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="~/assets/employer/css/reg.css" rel="stylesheet">
+</head>
+
+<body>
+    @RenderBody()
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+    <script>
+            $(document).ready(function () {
+            // Telefon numarası maskesi
+            $('.phone-mask').inputmask('0 (599) 999 9999', { placeholder: '_' });
+
+            // Şifre göster/gizle
+            $('.toggle-password').click(function () {
+                const input = $(this).closest('.input-group').find('input');
+                const icon = $(this).find('i');
+                input.attr('type', input.attr('type') === 'password' ? 'text' : 'password');
+                icon.toggleClass('fa-eye fa-eye-slash');
+            });
+
+            // Şifre kontrol fonksiyonları
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                const rules = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /\d/.test(password),
+                    special: /[!@@#$%^&*(),.?":{}|<>]/.test(password)
+                };
+
+                Object.values(rules).forEach(rule => strength += rule ? 1 : 0);
+                return { strength: (strength / 5) * 100, rules };
+            }
+
+            $('.password-input').on('input', function () {
+                const password = $(this).val();
+                const { strength, rules } = checkPasswordStrength(password);
+
+                // Şifre güç çubuğu
+                $('.password-strength-bar').css('width', strength + '%')
+                    .css('background-color',
+                        strength < 40 ? '#dc3545' :
+                            strength < 70 ? '#ffc107' : '#28a745');
+
+                // Kuralları güncelle
+                $('.password-rules li').each(function () {
+                    const rule = $(this).data('rule');
+                    $(this).toggleClass('valid', rules[rule]);
+                });
+            });
+
+            // Şifre eşleşme kontrolü için fonksiyon
+            function checkPasswordMatch() {
+                const password = $('.password-input').val();
+                const confirmPassword = $('.password-confirm').val();
+                const match = password === confirmPassword;
+
+                if (password || confirmPassword) { // Eğer herhangi biri doluysa kontrol et
+                    $('.password-match-alert').text(match ? '' : 'Şifreler eşleşmiyor!');
+                } else {
+                    $('.password-match-alert').text('');
+                }
+            }
+
+            // Her iki input için de kontrol fonksiyonunu çağır
+            $('.password-input, .password-confirm').on('input', function() {
+                checkPasswordMatch();
+            });
+
+            // Tüm validasyon ve mesaj gösterme işlemlerini tek bir fonksiyonda toplayalım
+            function validateForm() {
+                const emptyFields = [];
+                $('form[name="register-form"] [required]').each(function() {
+                    if (!$(this).val()) {
+                        const label = $(this).closest('.form-group').find('label').text();
+                        emptyFields.push(label);
+                    }
+                });
+
+                if (emptyFields.length > 0) {
+                    showMessage(
+                        `Lütfen aşağıdaki alanları doldurunuz:<br>
+                        <ul><li>${emptyFields.join('</li><li>')}</li></ul>`
+                    );
+                    return false;
+                }
+
+                // E-posta kontrolü
+                const email = $('input[name="e-mail"]').val();
+                if (email && !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
+                    showMessage('Lütfen geçerli bir e-posta adresi giriniz!');
+                    return false;
+                }
+
+
+                // Şifre eşleşme kontrolü
+                if ($('.password-input').val() !== $('.password-confirm').val()) {
+                    showMessage('Şifreler eşleşmiyor!');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Basitleştirilmiş mesaj gösterme fonksiyonu
+            function showMessage(message, type = 'danger') {
+                const alertDiv = $(`<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>`);
+
+                const messageContainer = $('#alert-message');
+                messageContainer.html(alertDiv).show();
+
+                // Manuel kapatma için event listener
+                alertDiv.find('.close').on('click', function() {
+                    messageContainer.hide();
+                });
+
+                // Otomatik kapatma için timeout
+                setTimeout(() => {
+                    if (messageContainer.is(':visible')) {
+                        messageContainer.hide();
+                    }
+                }, 5000);
+            }
+
+            // Form gönderimi - basitleştirilmiş
+            $('.btn-submit').click(function (e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    // Loading göster
+                    const loadingOverlay = $('<div class="loading-overlay"><div class="spinner-border text-primary" role="status"><span class="sr-only">Yükleniyor...</span></div></div>');
+                    $('body').append(loadingOverlay);
+
+                    $.ajax({
+                        url: $('form[name="register-form"]').attr('action'),
+                        type: 'POST',
+                        data: $('form[name="register-form"]').serialize(),
+                        success: function (response) {
+                            showMessage(
+                                response.message,
+                                response.success ? 'success' : 'danger'
+                            );
+
+                            if (response.success) {
+                                // 2 saniye bekle ve yönlendir
+                                setTimeout(function() {
+                                    window.location.href = response.redirectUrl;
+                                }, 2000);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            showMessage('Bir hata oluştu: ' + error);
+                        },
+                        complete: function() {
+                            // Loading kaldır
+                            $('.loading-overlay').remove();
+                        }
+                    });
+                }
+            });
+
+            // Tab geçişlerini serbest bırak
+            $('.next-step').click(function (e) {
+                e.preventDefault();
+                const nextTab = $(this).closest('.tab-pane').next('.tab-pane').attr('id');
+                $('.nav-tabs a[href="#' + nextTab + '"]').tab('show');
+            });
+
+            $('.prev-step').click(function (e) {
+                e.preventDefault();
+                const prevTab = $(this).closest('.tab-pane').prev('.tab-pane').attr('id');
+                $('.nav-tabs a[href="#' + prevTab + '"]').tab('show');
+            });
+
+            // Tab'lara direkt tıklama izni
+            $('.nav-tabs a').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // İl değiştiğinde ilçeleri getir
+            $('#city').change(function() {
+                const ilId = $(this).val();
+                if (ilId) {
+                    $.get('/Employer/Account/GetIlceler', { ilId: ilId })
+                        .done(function(data) {
+                            const ilceSelect = $('#district');
+                            ilceSelect.empty();
+                            ilceSelect.append('<option value="">İlçe Seçiniz</option>');
+                            if (data && data.length > 0) {
+                                data.forEach(function(ilce) {
+                                    ilceSelect.append(`<option value="${ilce.id}">${ilce.name}</option>`);
+                                });
+                            }
+                        })
+                        .fail(function(error) {
+                            console.error('İlçeler yüklenirken hata oluştu:', error);
+                        });
+                } else {
+                    $('#district').html('<option value="">Önce Şehir Seçiniz</option>');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

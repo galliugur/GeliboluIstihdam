@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
+    ViewData["Title"] = "Şirket Ayarları";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Şirket Ayarları</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Şirket Adı</label>
+                            <input type="text" class="form-control" asp-for="CompanyName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vergi Numarası</label>
+                            <input type="text" class="form-control" asp-for="TaxNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" asp-for="Phone">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Adres</label>
+                            <textarea class="form-control" asp-for="Address" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Şirket Logosu</label>
+                            <input type="file" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\Employer\Data\" />
+    <Folder Include="Areas\Employee\Data\" />
+    <Folder Include="Areas\Employee\Models\" />
+    <Folder Include="wwwroot\assets\employee\" />
+    <Folder Include="wwwroot\upload\doc\" />
+    <Folder Include="wwwroot\upload\image\NewFolder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Netia.Katharsys.Core">
+      <HintPath>..\..\..\3rd\Netia.Katharsys.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Netia.Paranoid.Core">
+      <HintPath>..\..\..\3rd\Netia.Paranoid.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

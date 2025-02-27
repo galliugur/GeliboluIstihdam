@@ -1,0 +1,156 @@
+
+/* Sayfanýn arka planýna resim ekleme ve sabitleme */
+body {
+    background-image: url('../img/bg-image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Özel degrade arka plan renkleri */
+.bg-gradient-custom {
+    background: linear-gradient(to right, #032C49, #0088CC);
+}
+
+/* Butonlarýn hover renklerini koyu yapma */
+.btn-gradient-h {
+    background: linear-gradient(to bottom, #FFFFFF, #D9D9D9);
+    border: none;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+    .btn-gradient-h:hover {
+        background: linear-gradient(to bottom, #D9D9D9, #0088CC);
+        color: #fff;
+    }
+
+/* Header'ý sabitlemek için */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Header ile içerikler arasýna boþluk eklemek için */
+.header-content {
+    padding-top: 80px;
+    margin-top: 100px;
+}
+
+/* Ýþ Arayanlar ve Ýþverenler butonlarý ortalamak için */
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-gradient {
+    background: linear-gradient(to bottom, #FFFFFF, #D9D9D9);
+    border: none;
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-top: 2px solid #0088CC;
+    width: 45%;
+    text-align: center;
+}
+
+    .btn-gradient:hover {
+        background: linear-gradient(to bottom, #D9D9D9, #0088CC);
+        color: #fff;
+    }
+
+/* Footer için sabitleme */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to right, #032C49, #0088CC);
+    color: white;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+/* Modal içeriði */
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: var(--bs-modal-padding);
+    background: linear-gradient(to right, #032C49, #0088CC);
+}
+
+    .modal-body form {
+        margin: auto 20px;
+    }
+
+.btn-gradient-m {
+    background: linear-gradient(to bottom, #FFFFFF, #D9D9D9);
+    border: none;
+    color: #000;
+    border-radius: 5px;
+    width: 90%;
+}
+
+    .btn-gradient-m img {
+        height: 20px;
+        border-radius: 5px;
+    }
+
+.btn-togglePassword {
+    background: white;
+    color: gray;
+    border-color: #dee2e6;
+}
+
+#passwordStrengthBar {
+    height: 7px; /* Daha ince bar */
+    transition: width 0.3s ease-in-out;
+}
+.progress.mb-1 {
+    height: 7px;
+}
+
+
+/* Mobil uyumlu düzenlemeler */
+@media (max-width: 768px) {
+    .center-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .btn-gradient {
+        width: 100%;
+    }
+
+    .modal-body form {
+        margin: auto 10px;
+    }
+
+    .modal-body .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 15px;
+    }
+
+    .bg-white {
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+}

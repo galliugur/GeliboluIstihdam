@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <base href="/">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Gelibolu Belediyesi İş Kurumu</title>
+    <!-- Bootstrap CSS -->
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/css/syle.css" rel="stylesheet" />
+    <link href="~/assets/css/bootstrap-icons.css" rel="stylesheet">
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <header class="bg-gradient-custom text-white py-4">
+        <div class="container d-flex justify-content-between align-items-center">
+            <!-- Sol kısmı başlıklar için -->
+            <div class="d-flex flex-column align-items-start">
+                <h1 class="h4 font-weight-bold">GELİBOLU BELEDİYESİ</h1>
+                <h6 class="h6 font-weight-bold">İŞ KURUMU</h6>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <main class="container pb-5 my-4 flex-grow-1 header-content">
+        @RenderBody()
+    </main>
+    <!-- Footer -->
+    <footer class="bg-gradient-custom text-white py-2 mt-4">
+        <div class="container d-flex justify-content-between flex-column flex-sm-row">
+            <p class="mb-0">Gelibolu İş Kurumu © 2025</p>
+            <p class="mb-0 text-center text-sm-end">
+                İşveren ya da iş arayan olarak
+                <a class="text-white text-decoration-underline" href="#">kayıt olun</a> /
+                <a class="text-white text-decoration-underline" href="#">Giriş Yapın</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Input Mask için jQuery Input Mask kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+
+    <script>
+        // Ortak işlevler
+        function togglePasswordVisibility(button) {
+            const targetId = button.getAttribute('data-target');
+            const passwordField = document.getElementById(targetId);
+            const icon = button.querySelector('i');
+
+            if (passwordField.getAttribute('type') === 'password') {
+                passwordField.setAttribute('type', 'text');
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordField.setAttribute('type', 'password');
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        function resetForm(link) {
+            const formId = link.getAttribute('data-form-id');
+            const form = document.querySelector(`#${formId} form`);
+
+            if (form) {
+                form.reset();
+                form.querySelectorAll('.password-input').forEach(passwordField => {
+                    passwordField.setAttribute('type', 'password');
+                });
+                form.querySelectorAll('.btn-toggle-password i').forEach(icon => {
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                });
+
+                // Şifre güç çubuğunu ve metnini sıfırla
+                const passwordStrengthBar = document.getElementById("passwordStrengthBar");
+                const passwordStrengthText = document.getElementById("passwordStrengthText");
+                if (passwordStrengthBar && passwordStrengthText) {
+                    passwordStrengthBar.style.width = "0%";
+                    passwordStrengthBar.classList.remove("bg-danger", "bg-warning", "bg-info", "bg-primary", "bg-success");
+                    passwordStrengthText.textContent = "";
+                }
+            }
+        }
+
+        function checkPasswordStrength(passwordInput, passwordStrengthBar, passwordStrengthText) {
+            let password = passwordInput.value;
+            let strength = 0;
+            if (password.length >= 10) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/\d/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            let percent = (strength / 5) * 100;
+            let colorClass, text;
+
+            if (strength <= 1) {
+                colorClass = "bg-danger";
+                text = "Çok zayıf";
+            } else if (strength === 2) {
+                colorClass = "bg-warning";
+                text = "Zayıf";
+            } else if (strength === 3) {
+                colorClass = "bg-info";
+                text = "Orta";
+            } else if (strength === 4) {
+                colorClass = "bg-primary";
+                text = "Güçlü";
+            } else {
+                colorClass = "bg-success";
+                text = "Çok güçlü";
+            }
+
+            passwordStrengthBar.classList.remove("bg-danger", "bg-warning", "bg-info", "bg-primary", "bg-success");
+            passwordStrengthBar.classList.add(colorClass);
+            passwordStrengthBar.style.width = percent + "%";
+            passwordStrengthText.textContent = text;
+        }
+
+        function checkPasswordMatch(passwordInput, confirmPasswordInput, passwordMatchText) {
+            if (passwordInput.value !== confirmPasswordInput.value && confirmPasswordInput.value !== "") {
+                passwordMatchText.classList.remove("d-none");
+            } else {
+                passwordMatchText.classList.add("d-none");
+            }
+        }
+
+        // Event listener'lar
+        document.querySelectorAll('.btn-togglePassword').forEach(button => {
+            button.addEventListener('click', () => togglePasswordVisibility(button));
+        });
+
+        document.querySelectorAll('.reset-form').forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                resetForm(link);
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById("passwordEmployeeRegister");
+            const confirmPasswordInput = document.getElementById("confirmPasswordEmployeeRegister");
+            const passwordStrengthBar = document.getElementById("passwordStrengthBar");
+            const passwordStrengthText = document.getElementById("passwordStrengthText");
+            const passwordMatchText = document.getElementById("passwordMatchText");
+            const progressContainer = document.querySelector(".progress");
+
+            progressContainer.style.display = "none";
+
+            passwordInput.addEventListener("focus", function () {
+                progressContainer.style.display = "block";
+            });
+
+            passwordInput.addEventListener("input", function () {
+                if (passwordInput.value.length > 32) {
+                    passwordInput.value = passwordInput.value.slice(0, 32);
+                }
+                checkPasswordStrength(passwordInput, passwordStrengthBar, passwordStrengthText);
+                checkPasswordMatch(passwordInput, confirmPasswordInput, passwordMatchText);
+            });
+
+            confirmPasswordInput.addEventListener("input", function () {
+                checkPasswordMatch(passwordInput, confirmPasswordInput, passwordMatchText);
+            });
+        });
+
+        // Toastr ayarları
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
+        $(document).ready(function () {
+            // Telefon numarası maskesi
+            $('.phone-mask').inputmask('0 (599) 999 9999', { placeholder: '_' });
+
+            $('#employeeRegisterForm').on('submit', function (e) {
+                e.preventDefault();
+                var password = $('#passwordEmployeeRegister').val();
+                var confirmPassword = $('#confirmPasswordEmployeeRegister').val();
+
+                // Şifre kontrolü
+                if (password.length < 10) {
+                    toastr.error('Şifre en az 10 karakter olmalıdır.');
+                    return false;
+                }
+
+                if (!/[A-Z]/.test(password)) {
+                    toastr.error('Şifre en az bir büyük harf içermelidir.');
+                    return false;
+                }
+
+                if (!/[a-z]/.test(password)) {
+                    toastr.error('Şifre en az bir küçük harf içermelidir.');
+                    return false;
+                }
+
+                if (!/\d/.test(password)) {
+                    toastr.error('Şifre en az bir rakam içermelidir.');
+                    return false;
+                }
+
+                if (!/[^A-Za-z0-9]/.test(password)) {
+                    toastr.error('Şifre en az bir özel karakter içermelidir.');
+                    return false;
+                }
+
+                if (password !== confirmPassword) {
+                    toastr.error('Şifreler eşleşmiyor!');
+                    return false;
+                }
+
+                submitForm($(this));
+            });
+        });
+
+        function submitForm(form) {
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(function () {
+                            window.location.href = response.redirectUrl;
+                        }, 1500);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Bir hata oluştu. Lütfen tekrar deneyiniz.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+﻿body {
+    background: url('../../img/bg-image.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.nav-tabs {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+    .nav-tabs .nav-item {
+        flex: 1;
+        text-align: center;
+        background: #fff;
+        margin: 0;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        position: relative;
+        padding: 10px 15px;
+        width: 100%;
+        border-radius: 0;
+    }
+
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+            background: #fff;
+            border-bottom: 2px solid #007bff;
+            font-weight: bold;
+        }
+
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    background: #fff;
+    border-radius: 0 0 10px 10px;
+    padding: 20px;
+}
+
+.password-strength {
+    height: 5px;
+    width: 100%;
+    margin-top: 5px;
+    background: #eee;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.password-rules {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+    .password-rules li {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 5px;
+        color: #dc3545;
+        font-style: italic;
+    }
+
+        .password-rules li:before {
+            content: "\f00d";
+            font-family: "Font Awesome 5 Free";
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+        }
+
+        .password-rules li.valid {
+            color: #28a745;
+            text-decoration: line-through;
+        }
+
+            .password-rules li.valid:before {
+                content: "\f00c";
+                color: #28a745;
+            }
+
+.input-group-text {
+    cursor: pointer;
+}
+
+.highlight-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+

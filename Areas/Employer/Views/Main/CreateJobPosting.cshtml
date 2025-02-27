@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
+    ViewData["Title"] = "İş İlanı Oluştur";
+}
+
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="row pt-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">İlan Başlığı</label>
+                            <input type="text" class="form-control" asp-for="Title">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pozisyon</label>
+                            <input type="text" class="form-control" asp-for="Position">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Deneyim Seviyesi</label>
+                            <select class="form-select" asp-for="ExperienceLevel">
+                                <option value="">Seçiniz</option>
+                                <option value="Junior">Junior</option>
+                                <option value="Mid-Level">Mid-Level</option>
+                                <option value="Senior">Senior</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">İş Tanımı</label>
+                            <textarea class="form-control" asp-for="Description" rows="4"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Gereksinimler</label>
+                            <textarea class="form-control" asp-for="Requirements" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">İlanı Yayınla</button>
+            </form>
+        </div>
+    </div>

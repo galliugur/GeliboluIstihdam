@@ -1,0 +1,77 @@
+﻿@model GeliboluIstihdam.Areas.Employer.Models.RegisterViewModel
+@{
+
+    Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
+}
+
+    <div class="row">
+        <!-- İstatistikler -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Toplam İlan</div>
+                <div class="card-body">
+                    <h5 class="card-title">20</h5>
+                    <p class="card-text">Açık pozisyon sayısı</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Toplam Başvuru</div>
+                <div class="card-body">
+                    <h5 class="card-title">150</h5>
+                    <p class="card-text">Alınan başvuru sayısı</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">Yeni Başvurular</div>
+                <div class="card-body">
+                    <h5 class="card-title">5</h5>
+                    <p class="card-text">Bugün alınan başvurular</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İlanlar Listesi -->
+    <h4>İlanlar</h4>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">İlan Adı</th>
+                    <th scope="col">Pozisyon</th>
+                    <th scope="col">Açıklama</th>
+                    <th scope="col">Durum</th>
+                    <th scope="col">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Yazılım Geliştirici</td>
+                    <td>Frontend Developer</td>
+                    <td>React, HTML, CSS ile uygulama geliştirme</td>
+                    <td><span class="badge badge-success">Açık</span></td>
+                    <td><button class="btn btn-primary btn-sm">Düzenle</button></td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Veri Analisti</td>
+                    <td>Data Analyst</td>
+                    <td>Veri analizi ve raporlama</td>
+                    <td><span class="badge badge-danger">Kapalı</span></td>
+                    <td><button class="btn btn-primary btn-sm">Düzenle</button></td>
+                </tr>
+                <!-- Diğer ilanlar buraya eklenecek -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Yeni İlan Ekleme Butonu -->
+    <div class="text-right">
+        <button class="btn btn-success">Yeni İlan Ekle</button>
+    </div>
