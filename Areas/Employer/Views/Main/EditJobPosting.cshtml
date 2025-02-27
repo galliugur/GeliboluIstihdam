@@ -1,0 +1,163 @@
+@model GeliboluIstihdam.Areas.Employer.Models.EditJobPostingViewModel
+@{
+    Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
+    ViewData["Title"] = "İlan Düzenle";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">İlan Düzenle</h5>
+        </div>
+        <div class="card-body">
+            <form id="editJobPostingForm" method="post">
+                <input type="hidden" name="ID" value="@Model.ID" />
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Sektör</label>
+                        <select class="form-select" name="SektorID" required>
+                            <option value="">Sektör Seçin</option>
+                            @foreach (var sektor in Model.Sectors)
+                            {
+                                <option value="@sektor.ID" @(sektor.ID == Model.SektorID ? "selected" : "")>@sektor.Sektor</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Pozisyon</label>
+                        <input type="text" class="form-control" name="Pozisyon" value="@Model.Pozisyon" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İl</label>
+                        <select class="form-select" name="SehirID" id="sehirSelect" required>
+                            <option value="">İl Seçin</option>
+                            @foreach (var il in Model.Provinces)
+                            {
+                                <option value="@il.ID" @(il.ID == Model.SehirID ? "selected" : "")>@il.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">İlçe</label>
+                        <select class="form-select" name="IlceID" id="ilceSelect" required>
+                            <option value="">Önce İl Seçin</option>
+                            @foreach (var ilce in Model.Districts)
+                            {
+                                <option value="@ilce.ID" @(ilce.ID == Model.IlceID ? "selected" : "")>@ilce.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Çalışma Şekli</label>
+                        <select class="form-select" name="CalismaSekli" required>
+                            <option value="">Seçin</option>
+                            <option value="1" @(Model.CalismaSekli == 1 ? "selected" : "")>Tam Zamanlı</option>
+                            <option value="2" @(Model.CalismaSekli == 2 ? "selected" : "")>Yarı Zamanlı</option>
+                            <option value="3" @(Model.CalismaSekli == 3 ? "selected" : "")>Uzaktan</option>
+                            <option value="4" @(Model.CalismaSekli == 4 ? "selected" : "")>Stajyer</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Tecrübe Seviyesi</label>
+                        <select class="form-select" name="TecrubeSeviyesi" required>
+                            <option value="">Seçin</option>
+                            <option value="1" @(Model.TecrubeSeviyesi == 1 ? "selected" : "")>Tecrübesiz</option>
+                            <option value="2" @(Model.TecrubeSeviyesi == 2 ? "selected" : "")>Az Tecrübeli (1-3 Yıl)</option>
+                            <option value="3" @(Model.TecrubeSeviyesi == 3 ? "selected" : "")>Orta Tecrübeli (4-7 Yıl)</option>
+                            <option value="4" @(Model.TecrubeSeviyesi == 4 ? "selected" : "")>Çok Tecrübeli (8+ Yıl)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Eğitim Seviyesi</label>
+                        <select class="form-select" name="EgitimSeviyesi" required>
+                            <option value="">Seçin</option>
+                            <option value="1" @(Model.EgitimSeviyesi == 1 ? "selected" : "")>İlköğretim</option>
+                            <option value="2" @(Model.EgitimSeviyesi == 2 ? "selected" : "")>Lise</option>
+                            <option value="3" @(Model.EgitimSeviyesi == 3 ? "selected" : "")>Ön Lisans</option>
+                            <option value="4" @(Model.EgitimSeviyesi == 4 ? "selected" : "")>Lisans</option>
+                            <option value="5" @(Model.EgitimSeviyesi == 5 ? "selected" : "")>Yüksek Lisans</option>
+                            <option value="6" @(Model.EgitimSeviyesi == 6 ? "selected" : "")>Doktora</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">İş Tanımı ve Gereksinimler</label>
+                    <textarea class="form-control" name="Aciklama" rows="5" required>@Model.Aciklama</textarea>
+                </div>
+
+                <div class="text-end">
+                    <a href="/Employer/Main/JobPostings" class="btn btn-secondary">İptal</a>
+                    <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Form submit
+            $('#editJobPostingForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var formData = $(this).serialize();
+                console.log('Form verileri:', formData);
+
+                $.ajax({
+                    url: '/Employer/Main/EditJobPosting',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        console.log('Sunucu yanıtı:', response);
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(function() {
+                                window.location.href = '/Employer/Main/JobPostings';
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX hatası:', error);
+                        console.error('Detay:', xhr.responseText);
+                        toastr.error('İşlem sırasında bir hata oluştu');
+                    }
+                });
+            });
+
+            // İl değiştiğinde ilçeleri getir
+            $('#sehirSelect').change(function() {
+                var ilId = $(this).val();
+                if (ilId) {
+                    $.get('/Employer/Account/GetIlceler', { ilId: ilId }, function(data) {
+                        var ilceSelect = $('#ilceSelect');
+                        ilceSelect.empty();
+                        ilceSelect.append('<option value="">İlçe Seçin</option>');
+                        $.each(data, function(index, item) {
+                            ilceSelect.append($('<option></option>')
+                                .attr('value', item.id)
+                                .text(item.name));
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+} 

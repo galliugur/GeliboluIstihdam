@@ -1,47 +1,145 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+@model GeliboluIstihdam.Areas.Employer.Models.JobPostingViewModel
 @{
     Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
-    ViewData["Title"] = "İş İlanı Oluştur";
+    ViewData["Title"] = "Yeni İlan Oluştur";
+    ViewData["Page"] = "İlanlar";
+    ViewData["SubPage"] = "Yeni İlan";
 }
 
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
 
+<div class="container mt-4">
     <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Yeni İş İlanı Oluştur</h5>
+        </div>
         <div class="card-body">
-            <form method="post">
-                <div class="row pt-3">
+            <form id="jobPostingForm" method="post">
+                <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">İlan Başlığı</label>
-                            <input type="text" class="form-control" asp-for="Title">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Pozisyon</label>
-                            <input type="text" class="form-control" asp-for="Position">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Deneyim Seviyesi</label>
-                            <select class="form-select" asp-for="ExperienceLevel">
-                                <option value="">Seçiniz</option>
-                                <option value="Junior">Junior</option>
-                                <option value="Mid-Level">Mid-Level</option>
-                                <option value="Senior">Senior</option>
-                            </select>
+                            <input type="text" class="form-control" name="IlanBaslik" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">İş Tanımı</label>
-                            <textarea class="form-control" asp-for="Description" rows="4"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Gereksinimler</label>
-                            <textarea class="form-control" asp-for="Requirements" rows="4"></textarea>
+                            <label class="form-label">Pozisyon</label>
+                            <input type="text" class="form-control" name="Pozisyon" required>
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">İlanı Yayınla</button>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Sektör</label>
+                            <select class="form-select" name="SektorID" required>
+                                <option value="">Seçiniz...</option>
+                                @foreach (var sektor in ViewBag.Sektorler)
+                                {
+                                    <option value="@sektor.Value">@sektor.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Çalışma Şekli</label>
+                            <select class="form-select" name="CalismaSekli" required>
+                                <option value="">Seçiniz...</option>
+                                @foreach (var calismaSekli in ViewBag.CalismaSekilleri)
+                                {
+                                    <option value="@calismaSekli.Value">@calismaSekli.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Eğitim Seviyesi</label>
+                            <select class="form-select" name="EgitimSeviyesi" required>
+                                <option value="">Seçiniz...</option>
+                                @foreach (var egitim in ViewBag.EgitimSeviyeleri)
+                                {
+                                    <option value="@egitim.Value">@egitim.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">İlan Detayı</label>
+                    <textarea class="form-control" name="Aciklama" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Aranan Nitelikler</label>
+                    <textarea class="form-control" name="Nitelikler" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">İş Tanımı</label>
+                    <textarea class="form-control" name="IsTanimi" rows="3" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Tecrübe (Yıl)</label>
+                            <input type="number" class="form-control" name="TecrubeYili" required min="0">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Maaş Aralığı</label>
+                            <input type="text" class="form-control" name="MaasAralik">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> İlanı Yayınla
+                </button>
             </form>
         </div>
     </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#jobPostingForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                $.ajax({
+                    url: '@Url.Action("CreateJobPosting")',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => {
+                                window.location.href = '@Url.Action("JobPostings")';
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('İlan oluşturulurken bir hata oluştu!');
+                    }
+                });
+            });
+        });
+    </script>
+}

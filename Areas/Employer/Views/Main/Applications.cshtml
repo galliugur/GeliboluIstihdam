@@ -1,42 +1,112 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+@model GeliboluIstihdam.Areas.Employer.Models.ApplicationsViewModel
 @{
     Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
     ViewData["Title"] = "Başvurular";
 }
 
-
-
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Başvuru Tarihi</th>
-                            <th>İlan Başlığı</th>
-                            <th>Aday Adı</th>
-                            <th>Durum</th>
-                            <th>İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                            <tr>
-                                <td>assasa</td>
-                                <td>sasassa</td>
-                                <td>sassasa</td>
-                                <td>smsasaf</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">Detay</button>
-                                    <button class="btn btn-sm btn-success">Kabul Et</button>
-                                    <button class="btn btn-sm btn-danger">Reddet</button>
-                                </td>
-                            </tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-        </div>
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
     </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Başvurular</h5>
+
+        <table id="basvurularTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>İlan</th>
+                    <th>Aday</th>
+                    <th>İletişim</th>
+                    <th>Profil</th>
+                    <th>Başvuru Tarihi</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var basvuru in Model.Applications)
+                {
+                    <tr>
+                        <td>@basvuru.IlanBaslik</td>
+                        <td>@basvuru.AdaySoyad</td>
+                        <td>
+                            <div>@basvuru.Email</div>
+                            <div>@basvuru.Telefon</div>
+                        </td>
+                        <td>
+                            <div>@basvuru.Cinsiyet, @basvuru.Yas yaş</div>
+                            <div>@basvuru.EgitimDurumu</div>
+                            <div>@basvuru.Deneyim</div>
+                        </td>
+                        <td>@basvuru.BasvuruZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge bg-@(basvuru.Durum switch {
+                                1 => "info",
+                                2 => "primary",
+                                3 => "warning",
+                                4 => "success",
+                                5 => "danger",
+                                _ => "secondary"
+                            })">@basvuru.DurumText</span>
+                        </td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Durum Değiştir
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="updateStatus(@basvuru.ID, 1)">Yeni Başvuru</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="updateStatus(@basvuru.ID, 2)">İnceleniyor</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="updateStatus(@basvuru.ID, 3)">Mülakat</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="updateStatus(@basvuru.ID, 4)">Kabul Edildi</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="updateStatus(@basvuru.ID, 5)">Reddedildi</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#basvurularTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json'
+                },
+                order: [[4, 'desc']] // Başvuru tarihine göre sırala
+            });
+        });
+
+        function updateStatus(basvuruId, durum) {
+            $.ajax({
+                url: '/Employer/Main/UpdateApplicationStatus',
+                type: 'POST',
+                data: { basvuruId: basvuruId, durum: durum },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('İşlem sırasında bir hata oluştu');
+                }
+            });
+        }
+    </script>
+}

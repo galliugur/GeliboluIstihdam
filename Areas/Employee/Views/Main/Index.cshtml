@@ -1,6 +1,493 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+@model System.Data.DataRow
 @{
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
 }
-    <h1>Zort</h1>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="user-profile text-center p-4">
+            <div class="profile-image mb-3">
+                <div class="avatar">
+                    <span>@(Model["Ad"].ToString()[0])@(Model["Soyad"].ToString()[0])</span>
+                </div>
+            </div>
+            <h5 class="mb-1">@Model["Ad"] @Model["Soyad"]</h5>
+            <span class="badge bg-gradient">İş Arayan</span>
+        </div>
+        
+        <ul class="dashboard-nav">
+            <li class="active">
+                <a href="#"><i class="fas fa-home me-2"></i>Ana Sayfa</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-briefcase me-2"></i>İş İlanları</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-file-alt me-2"></i>Başvurularım</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-user-edit me-2"></i>Profil Bilgileri</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-file-upload me-2"></i>CV Yönetimi</a>
+            </li>
+            <li>
+                <a href="#"><i class="fas fa-bell me-2"></i>Bildirimler</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <button class="menu-toggle d-lg-none">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-search">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" placeholder="İş ara...">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="user-menu dropdown">
+                    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="user-info">
+                            <span class="user-name">@Model["Ad"] @Model["Soyad"]</span>
+                            <span class="user-role">İş Arayan</span>
+                        </div>
+                        <div class="avatar-small">
+                            <span>@(Model["Ad"].ToString()[0])@(Model["Soyad"].ToString()[0])</span>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                <i class="fas fa-user me-2"></i>Profil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>Çıkış Yap
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="dashboard-content">
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
+
+            @if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Profil Bilgileri</h5>
+                                <div class="profile-info">
+                                    <p><strong>Ad Soyad:</strong> @Model["Ad"] @Model["Soyad"]</p>
+                                    <p><strong>E-posta:</strong> @Model["Mail"]</p>
+                                    <p><strong>Telefon:</strong> @Model["GSM"]</p>
+                                    <p><strong>TCKN:</strong> @Model["TCKN"]</p>
+                                    <p><strong>Kayıt Tarihi:</strong> @Convert.ToDateTime(Model["KayitZamani"]).ToString("dd.MM.yyyy")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Başvuru İstatistikleri</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="stat-card bg-primary text-white">
+                                            <h3>@ViewBag.ToplamBasvuru</h3>
+                                            <p>Toplam Başvuru</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card bg-success text-white">
+                                            <h3>@ViewBag.AktifBasvuru</h3>
+                                            <p>Aktif Başvuru</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="stat-card bg-info text-white">
+                                            <h3>@ViewBag.MulakatSayisi</h3>
+                                            <p>Mülakat</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Profil Düzenleme Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Profil Düzenle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <!-- Kişisel Bilgiler -->
+                        <div class="col-md-6">
+                            <h6 class="mb-3"><i class="fas fa-user me-2"></i>Kişisel Bilgiler</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Ad</label>
+                                <input type="text" class="form-control" name="ad" value="@Model["Ad"]" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Soyad</label>
+                                <input type="text" class="form-control" name="soyad" value="@Model["Soyad"]" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">TC Kimlik No</label>
+                                <input type="text" class="form-control" name="tckn" value="@Model["TCKN"]" 
+                                       maxlength="11" pattern="\d{11}" title="TC Kimlik No 11 haneli olmalıdır">
+                            </div>
+                        </div>
+
+                        <!-- İletişim Bilgileri -->
+                        <div class="col-md-6">
+                            <h6 class="mb-3"><i class="fas fa-address-card me-2"></i>İletişim Bilgileri</h6>
+                            <div class="mb-3">
+                                <label class="form-label">E-posta</label>
+                                <input type="email" class="form-control" name="mail" value="@Model["Mail"]" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Telefon</label>
+                                <input type="tel" class="form-control" name="gsm" value="@Model["GSM"]" required>
+                            </div>
+                        </div>
+
+                        <!-- Şifre Değiştirme -->
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3"><i class="fas fa-key me-2"></i>Şifre Değiştirme</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mevcut Şifre</label>
+                                        <input type="password" class="form-control" name="currentPassword">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Yeni Şifre</label>
+                                        <input type="password" class="form-control" name="newPassword">
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Şifrenizi değiştirmek istemiyorsanız bu alanları boş bırakın.</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>İptal
+                </button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile()">
+                    <i class="fas fa-save me-2"></i>Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --bg-light: #f1f5f9;
+            --text-dark: #1e293b;
+            --sidebar-width: 280px;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+            position: relative;
+        }
+
+        /* Sidebar */
+        .dashboard-sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        /* Main Content */
+        .dashboard-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Navigation */
+        .dashboard-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dashboard-nav li a {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .dashboard-nav li.active a,
+        .dashboard-nav li a:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+
+        /* Content Cards */
+        .dashboard-content {
+            padding: 20px 0;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s;
+        }
+
+        .stats-icon {
+            font-size: 2.5rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .stats-info {
+            text-align: right;
+        }
+
+        .stats-info h3 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #fff;
+        }
+
+        .stats-info p {
+            margin: 5px 0 0;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Job List */
+        .job-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .job-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .info-item i {
+            width: 30px;
+            color: var(--primary-color);
+        }
+
+        /* Menu Toggle Button */
+        .menu-toggle {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 992px) {
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .dashboard-main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: var(--text-dark);
+                cursor: pointer;
+            }
+
+            .sidebar-open .dashboard-sidebar {
+                transform: translateX(0);
+            }
+
+            .stats-card {
+                margin-bottom: 15px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .dashboard-main {
+                padding: 15px;
+            }
+
+            .dashboard-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-search {
+                order: 3;
+                width: 100%;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .profile-info p {
+            margin-bottom: 10px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Profil güncelleme
+        function updateProfile() {
+            $.ajax({
+                url: '@Url.Action("UpdateProfile")',
+                type: 'POST',
+                data: $('#profileForm').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        $('#profileModal').modal('hide');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('İşlem sırasında bir hata oluştu!');
+                }
+            });
+        }
+
+        // Çıkış yapma fonksiyonu
+        function logout() {
+            if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+                $.post('@Url.Action("Logout")', function() {
+                    window.location.href = '/';
+                });
+            }
+        }
+
+        // Mobil menü toggle
+        $(document).ready(function() {
+            $('.menu-toggle').click(function() {
+                $('.dashboard-container').toggleClass('sidebar-open');
+            });
+
+            // Sayfa dışına tıklandığında mobil menüyü kapat
+            $(document).click(function(e) {
+                if (!$(e.target).closest('.dashboard-sidebar, .menu-toggle').length) {
+                    $('.dashboard-container').removeClass('sidebar-open');
+                }
+            });
+        });
+    </script>
+}

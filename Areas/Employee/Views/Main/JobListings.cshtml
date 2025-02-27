@@ -1,0 +1,91 @@
+@{
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "İş İlanları";
+}
+
+@model List<GeliboluIstihdam.Areas.Employee.Models.JobListingViewModel>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">İş İlanları</h5>
+
+        <div class="row">
+            @foreach (var ilan in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@ilan.IlanBaslik</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@ilan.FirmaAdi</h6>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-primary">@ilan.SektorAdi</span>
+                                <span class="badge bg-info">@(ilan.CalismaSekli switch {
+                                    1 => "Tam Zamanlı",
+                                    2 => "Yarı Zamanlı",
+                                    3 => "Uzaktan",
+                                    4 => "Stajyer",
+                                    _ => "Belirsiz"
+                                })</span>
+                            </div>
+
+                            <p class="card-text">@ilan.Aciklama</p>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    İlan Tarihi: @ilan.KayitZamani.ToString("dd.MM.yyyy")
+                                </small>
+                                <div>
+                                    @if (ilan.BasvurulduMu)
+                                    {
+                                        <button class="btn btn-success" disabled>
+                                            <i class="bi bi-check-circle"></i> Başvuruldu
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-primary" onclick="applyForJob(@ilan.ID)">
+                                            Başvur
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applyForJob(ilanId) {
+            if (confirm('Bu ilana başvurmak istediğinizden emin misiniz?')) {
+                $.ajax({
+                    url: '/Employee/Main/ApplyForJob',
+                    type: 'POST',
+                    data: { ilanId: ilanId },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('İşlem sırasında bir hata oluştu');
+                    }
+                });
+            }
+        }
+    </script>
+} 

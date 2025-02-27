@@ -3,6 +3,8 @@ using Netia.Katharsys.Core;
 using System.Data;
 using GeliboluIstihdam.Areas.Employer.Models;
 using System.Linq;
+using QueryVariableCollection = Netia.Katharsys.Core.QueryVariableCollection;
+using QueryVariable = Netia.Katharsys.Core.QueryVariable;
 
 namespace GeliboluIstihdam.Areas.Employer.Controllers
 {
@@ -124,7 +126,17 @@ namespace GeliboluIstihdam.Areas.Employer.Controllers
                 }
             );
 
-            return Json(new { success = true, message = "Kayıt işlemi başarıyla tamamlandı.", redirectUrl = "Employer/Main/Index" });
+            // Session'ları oluştur
+            HttpContext.Session.SetInt32("IsverenID", eklenenKayitID);
+            HttpContext.Session.SetString("FirmaUnvan", firmaAdi);
+            HttpContext.Session.SetString("PersonelMail", ePosta);
+            HttpContext.Session.SetString("PersonelGSM", telefonNo);
+
+            return Json(new { 
+                success = true, 
+                message = "Kayıt işlemi başarıyla tamamlandı.", 
+                redirectUrl = "/Employer/Main/Index" 
+            });
         }
         public IActionResult Register()
         {
@@ -170,6 +182,74 @@ namespace GeliboluIstihdam.Areas.Employer.Controllers
         public IActionResult Logon()
         {
             return View(); // Kayıt formunu içeren bir View oluşturun
+        }
+
+        [HttpPost]
+        public IActionResult LogonPost([FromForm] string email, [FromForm] string password)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                {
+                    return Json(new { success = false, message = "E-posta ve şifre gereklidir." });
+                }
+
+                email = email.Trim().ToLower();
+
+                // Firma personelini kontrol et
+                var personelSorgu = @"
+                    SELECT 
+                        p.ID, p.FirmaID, p.AdminDurum, p.Ad, p.GSM, p.Mail, p.SifreHash,
+                        f.FirmaUnvan, f.Marka, f.VKN, f.Eposta, f.SehirID, f.IlceID
+                    FROM FirmaPersonel p
+                    INNER JOIN IsverenFirma f ON p.FirmaID = f.ID
+                    WHERE p.Mail = @Mail AND f.Durum = 1";
+
+                var parametreler = new QueryVariableCollection(
+                    new QueryVariable("Mail", email)
+                );
+
+                var personel = SqlService.FetchSingleDataRow("Default", personelSorgu, parametreler);
+
+                if (personel == null)
+                {
+                    return Json(new { success = false, message = "E-posta veya şifre hatalı!" });
+                }
+
+                // Şifreyi kontrol et
+                string girilenSifreHash;
+                using (var md5 = System.Security.Cryptography.MD5.Create())
+                {
+                    byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(password);
+                    byte[] hashBytes = md5.ComputeHash(inputBytes);
+                    girilenSifreHash = Convert.ToHexString(hashBytes).ToLower();
+                }
+
+                if (!string.Equals(girilenSifreHash, personel["SifreHash"].ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return Json(new { success = false, message = "E-posta veya şifre hatalı!" });
+                }
+
+                // Session'ları oluştur
+                HttpContext.Session.SetInt32("IsverenID", Convert.ToInt32(personel["FirmaID"]));
+                HttpContext.Session.SetInt32("PersonelID", Convert.ToInt32(personel["ID"]));
+                HttpContext.Session.SetInt32("AdminDurum", Convert.ToInt32(personel["AdminDurum"]));
+                HttpContext.Session.SetString("PersonelAd", personel["Ad"].ToString());
+                HttpContext.Session.SetString("FirmaUnvan", personel["FirmaUnvan"].ToString());
+                HttpContext.Session.SetString("FirmaMarka", personel["Marka"]?.ToString() ?? "");
+                HttpContext.Session.SetString("PersonelMail", personel["Mail"].ToString());
+                HttpContext.Session.SetString("PersonelGSM", personel["GSM"]?.ToString() ?? "");
+
+                return Json(new { 
+                    success = true, 
+                    message = "Giriş başarılı!", 
+                    redirectUrl = Url.Action("Index", "Main", new { area = "Employer" }) 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Giriş yapılırken bir hata oluştu: " + ex.Message });
+            }
         }
     }
 }

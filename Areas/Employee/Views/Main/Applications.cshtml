@@ -1,0 +1,73 @@
+@model List<JobApplicationViewModel>
+@{
+    ViewData["Title"] = "Başvurularım";
+    Layout = "~/Areas/Employee/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2 class="mb-4">Başvurularım</h2>
+
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>İlan Başlığı</th>
+                                <th>Firma</th>
+                                <th>Pozisyon</th>
+                                <th>Sektör</th>
+                                <th>Çalışma Şekli</th>
+                                <th>Başvuru Tarihi</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var basvuru in Model)
+                            {
+                                <tr>
+                                    <td>@basvuru.IlanBaslik</td>
+                                    <td>@basvuru.FirmaAdi</td>
+                                    <td>@basvuru.Pozisyon</td>
+                                    <td>@basvuru.SektorAdi</td>
+                                    <td>@basvuru.CalismaSekliText</td>
+                                    <td>@basvuru.BasvuruZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge bg-@basvuru.DurumClass" 
+                                              data-bs-toggle="tooltip" 
+                                              title="@basvuru.DurumAciklama">
+                                            @basvuru.DurumText
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Henüz bir başvurunuz bulunmamaktadır.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+} 

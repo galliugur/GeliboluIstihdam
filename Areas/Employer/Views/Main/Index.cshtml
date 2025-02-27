@@ -1,77 +1,136 @@
 ﻿@model GeliboluIstihdam.Areas.Employer.Models.RegisterViewModel
 @{
-
+    ViewData["Title"] = "İşveren Paneli";
     Layout = "~/Areas/Employer/Views/Shared/Layout/Main.cshtml";
+
+    var istatistikler = ViewBag.Istatistikler as System.Data.DataRow;
+    var ilanlar = ViewBag.Ilanlar as System.Data.DataTable;
 }
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Hoş Geldiniz, @Context.Session.GetString("FirmaUnvan")</h3>
+        <span class="text-muted">Son giriş: @DateTime.Now.ToString("dd.MM.yyyy HH:mm")</span>
+    </div>
 
     <div class="row">
         <!-- İstatistikler -->
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">Toplam İlan</div>
+            <div class="card mb-4 border-primary">
                 <div class="card-body">
-                    <h5 class="card-title">20</h5>
-                    <p class="card-text">Açık pozisyon sayısı</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Aktif İlan</h6>
+                            <h3 class="mb-0">@istatistikler["AktifIlanSayisi"]</h3>
+                        </div>
+                        <div class="bg-primary text-white rounded-circle p-3">
+                            <i class="fas fa-briefcase fa-2x"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">Toplam Başvuru</div>
+            <div class="card mb-4 border-success">
                 <div class="card-body">
-                    <h5 class="card-title">150</h5>
-                    <p class="card-text">Alınan başvuru sayısı</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Toplam Başvuru</h6>
+                            <h3 class="mb-0">@istatistikler["ToplamBasvuruSayisi"]</h3>
+                        </div>
+                        <div class="bg-success text-white rounded-circle p-3">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">Yeni Başvurular</div>
+            <div class="card mb-4 border-info">
                 <div class="card-body">
-                    <h5 class="card-title">5</h5>
-                    <p class="card-text">Bugün alınan başvurular</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Bugünkü Başvurular</h6>
+                            <h3 class="mb-0">@istatistikler["BugunYapilanBasvuru"]</h3>
+                        </div>
+                        <div class="bg-info text-white rounded-circle p-3">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- İlanlar Listesi -->
-    <h4>İlanlar</h4>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">İlan Adı</th>
-                    <th scope="col">Pozisyon</th>
-                    <th scope="col">Açıklama</th>
-                    <th scope="col">Durum</th>
-                    <th scope="col">İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Yazılım Geliştirici</td>
-                    <td>Frontend Developer</td>
-                    <td>React, HTML, CSS ile uygulama geliştirme</td>
-                    <td><span class="badge badge-success">Açık</span></td>
-                    <td><button class="btn btn-primary btn-sm">Düzenle</button></td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Veri Analisti</td>
-                    <td>Data Analyst</td>
-                    <td>Veri analizi ve raporlama</td>
-                    <td><span class="badge badge-danger">Kapalı</span></td>
-                    <td><button class="btn btn-primary btn-sm">Düzenle</button></td>
-                </tr>
-                <!-- Diğer ilanlar buraya eklenecek -->
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Son İlanlar</h5>
+            <button class="btn btn-primary" onclick="location.href='@Url.Action("Create", "JobPostings")'">
+                <i class="fas fa-plus me-2"></i>Yeni İlan
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>İlan Başlığı</th>
+                            <th>Pozisyon</th>
+                            <th>Sektör</th>
+                            <th>Şehir</th>
+                            <th>Başvuru</th>
+                            <th>Durum</th>
+                            <th>Yayın Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ilanlar != null && ilanlar.Rows.Count > 0)
+                        {
+                            foreach (System.Data.DataRow ilan in ilanlar.Rows)
+                            {
+                                <tr>
+                                    <td>@ilan["IlanBaslik"]</td>
+                                    <td>@ilan["Pozisyon"]</td>
+                                    <td>@ilan["SektorAdi"]</td>
+                                    <td>@ilan["SehirAdi"]</td>
+                                    <td>
+                                        <span class="badge bg-info">@ilan["BasvuruSayisi"]</span>
+                                    </td>
+                                    <td>
+                                        @if (Convert.ToBoolean(ilan["Durum"]))
+                                        {
+                                            <span class="badge bg-success">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Pasif</span>
+                                        }
+                                    </td>
+                                    <td>@Convert.ToDateTime(ilan["KayitZamani"]).ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        <a href="@Url.Action("Edit", "JobPostings", new { id = ilan["ID"] })" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Applications", "JobPostings", new { id = ilan["ID"] })" 
+                                           class="btn btn-sm btn-info">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center">Henüz ilan bulunmuyor.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <!-- Yeni İlan Ekleme Butonu -->
-    <div class="text-right">
-        <button class="btn btn-success">Yeni İlan Ekle</button>
-    </div>
+</div>

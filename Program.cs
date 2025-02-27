@@ -19,9 +19,9 @@ public class Program
             {
                 { "Application Name", string.Format("NetiaKatharsysDataEngine-{0}", DatabaseMiddleware.DefaultConnectionAlias) }, //SELECT APP_NAME()
                 { "Workstation ID", Environment.GetEnvironmentVariable("ComputerName") },
-                { "Current Language", "T�rk蔒" },
+                { "Current Language", "Turkish" },
 
-                { "Data Source", @"cloud.gallikom.com" },
+                { "Data Source", @"cloud.gallikom.com,14333\TEST" },
                 //{ "Data Source", @"." },
                 { "DataBase", "GeliboluIstihdam" },
                 { "User ID", "sa" },
@@ -32,13 +32,24 @@ public class Program
             }
         );
 
+        // Session yap覺land覺rmas覺n覺 ekle
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30); // 30 dakika session timeout
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
         }
+
+        app.UseHttpsRedirection();
         app.UseStaticFiles();
 
         app.UseRouting();
@@ -46,15 +57,16 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Session middleware'ini ekle (UseRouting'den sonra olmal覺)
+        app.UseSession();
 
-        app.MapControllerRoute
-        (
-            name: "AccountAction",
-            pattern: "{area:exists}/{controller=Account}/{action=Index}"
-        );
+        // Route yap覺land覺rmas覺n覺 d羹zeltelim
+        app.MapControllerRoute(
+            name: "areas",
+            pattern: "{area:exists}/{controller=Account}/{action=Index}/{id?}");
 
         app.MapControllerRoute(
-            name: "Default",
+            name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
         app.Run();

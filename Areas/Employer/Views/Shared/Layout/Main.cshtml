@@ -1,11 +1,22 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    var firmaId = Context.Session.GetInt32("IsverenID");
+    if (!firmaId.HasValue)
+    {
+        Context.Response.Redirect("/Employer/Account/Logon");
+        return;
+    }
+
+    var firmaUnvan = Context.Session.GetString("FirmaUnvan");
+    var personelAd = Context.Session.GetString("PersonelAd");
+}
+<!DOCTYPE html>
+<html lang="tr">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>@ViewData["Title"] - Panel</title>
+    <title>@ViewData["Title"] - İşveren Paneli</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -25,6 +36,10 @@
     <link href="~/assets/employer/vendor/quill/quill.bubble.css" rel="stylesheet">
     <link href="~/assets/employer/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="~/assets/employer/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.css"/>
 
     <!-- Template Main CSS File -->
     <link href="~/assets/employer/css/style.css" rel="stylesheet">
@@ -38,7 +53,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <!-- Sol kısmı başlıklar için -->
             <div class="d-flex flex-column align-items-start p-2 mt-2">
-                <h4 class="h4 font-weight-bold">GELİBOLU BELEDİYESİ</h4>
+                <h4 class="h4 font-weight-bold">@firmaUnvan</h4>
                 <h6 class="h6 font-weight-bold">İŞ KURUMU</h6>
             </div>
             <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -205,12 +220,12 @@
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img src="employer/assets/img/profile-img.jpg" alt="Profile" class="rounded-circle">
-                        <span class="d-none d-md-block dropdown-toggle ps-2">K. Anderson</span>
+                        <span class="d-none d-md-block dropdown-toggle ps-2">@personelAd</span>
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
-                            <h6>Kevin Anderson</h6>
+                            <h6>@personelAd</h6>
                             <span>Web Designer</span>
                         </li>
                         <li>
@@ -218,7 +233,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
+                            <a class="dropdown-item d-flex align-items-center" href="/Employer/Main/Profile">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
@@ -228,27 +243,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                                <i class="bi bi-gear"></i>
-                                <span>Account Settings</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
+                            <a class="dropdown-item d-flex align-items-center" href="/Employer/Account/Logout">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign Out</span>
                             </a>
@@ -267,24 +262,24 @@
         <ul class="sidebar-nav" id="sidebar-nav">
 
             <li class="nav-item">
-                <a class="nav-link @(ViewData["Page"].ToString() == "Dashboard" ? "" : "collapsed")" href="@Url.Action("Index", "Main")">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
+                <a class="nav-link @(ViewData["Page"]?.ToString() == "Ana Sayfa" ? "" : "collapsed")" href="/Employer/Main">
+                    <i class="bi bi-house"></i>
+                    <span>Ana Sayfa</span>
                 </a>
             </li><!-- End Dashboard Nav -->
 
             <li class="nav-item">
-                <a class="nav-link @(ViewData["Page"].ToString() == "İş İlanları" ? "" : "collapsed")" data-bs-target="#jobs-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link @(ViewData["Page"]?.ToString() == "İş İlanları" ? "" : "collapsed")" data-bs-target="#jobs-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-briefcase"></i><span>İş İlanları</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="jobs-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                <ul id="jobs-nav" class="nav-content collapse @(ViewData["Page"]?.ToString() == "İş İlanları" ? "show" : "")" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="@Url.Action("CreateJobPosting", "Main")">
+                        <a href="/Employer/Main/CreateJobPosting" class="@(ViewData["SubPage"]?.ToString() == "Yeni İlan" ? "active" : "")">
                             <i class="bi bi-circle"></i><span>Yeni İlan Oluştur</span>
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("JobPostings", "Main")">
+                        <a href="/Employer/Main/JobPostings" class="@(ViewData["SubPage"]?.ToString() == "İlanları Yönet" ? "active" : "")">
                             <i class="bi bi-circle"></i><span>İlanları Yönet</span>
                         </a>
                     </li>
@@ -292,24 +287,24 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link @(ViewData["Page"].ToString() == "Başvurular" ? "" : "collapsed")" href="@Url.Action("Applications", "Main")">
+                <a class="nav-link @(ViewData["Page"]?.ToString() == "Başvurular" ? "" : "collapsed")" href="/Employer/Main/Applications">
                     <i class="bi bi-file-earmark-person"></i>
                     <span>Başvurular</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link @(ViewData["Page"].ToString() == "Firma Yönetimi" ? "" : "collapsed")" data-bs-target="#company-nav" data-bs-toggle="collapse" href="#">
+                <a class="nav-link @(ViewData["Page"]?.ToString() == "Firma Yönetimi" ? "" : "collapsed")" data-bs-target="#company-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-building"></i><span>Firma Yönetimi</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="company-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="@Url.Action("CompanyUsers", "Main")">
+                        <a href="/Employer/Main/CompanyUsers">
                             <i class="bi bi-circle"></i><span>Kullanıcılar</span>
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("CompanySettings", "Main")">
+                        <a href="/Employer/Main/CompanySettings">
                             <i class="bi bi-circle"></i><span>Firma Ayarları</span>
                         </a>
                     </li>
@@ -489,7 +484,7 @@
             <li class="nav-heading">Pages</li>
 
             <li class="nav-item">
-                <a class="nav-link @(ViewData["Page"].ToString() == "Profil" ? "" : "collapsed")" href="@Url.Action("Profile", "Main")">
+                <a class="nav-link @(ViewData["Page"]?.ToString() == "Profil" ? "" : "collapsed")" href="/Employer/Main/Profile">
                     <i class="bi bi-person"></i>
                     <span>Profilim</span>
                 </a>
@@ -516,18 +511,18 @@
     <main id="main" class="main">
 
         <div class="pagetitle">
-            <h1>@ViewData["PageTitle"]</h1>
+            <h1>@(ViewData["PageTitle"] ?? "Dashboard")</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Anasayfa</a></li>
+                    <li class="breadcrumb-item"><a href="/Employer/Main">Anasayfa</a></li>
                     @if (ViewData["SubPage"] != null)
                     {
-                        <li class="breadcrumb-item">@ViewData["Page"]</li>
+                        <li class="breadcrumb-item">@(ViewData["Page"] ?? "")</li>
                         <li class="breadcrumb-item active">@ViewData["SubPage"]</li>
                     }
                     else
                     {
-                        <li class="breadcrumb-item active">@ViewData["Page"]</li>
+                        <li class="breadcrumb-item active">@(ViewData["Page"] ?? "Dashboard")</li>
                     }
                 </ol>
             </nav>
@@ -536,10 +531,11 @@
         @RenderBody()
 
     </main><!-- End #main -->
+
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
         <div class="copyright">
-            &copy; Copyright <strong><span>GalliKOM</span></strong>. All Rights Reserved
+            &copy; Copyright <strong><span>Gelibolu İş Kurumu</span></strong>. Tüm hakları saklıdır.
         </div>
     </footer><!-- End Footer -->
 
@@ -550,12 +546,20 @@
     <script src="~/assets/employer/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/assets/employer/vendor/chart.js/chart.umd.js"></script>
     <script src="~/assets/employer/vendor/echarts/echarts.min.js"></script>
-    <script src="~/assets/employer/vendor/quill/quill.js"></script>
+    <script src="~/assets/employer/vendor/quill/quill.min.js"></script>
     <script src="~/assets/employer/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="~/assets/employer/vendor/tinymce/tinymce.min.js"></script>
     <script src="~/assets/employer/vendor/php-email-form/validate.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/dt-1.11.5/datatables.min.js"></script>
+
     <!-- Template Main JS File -->
     <script src="~/assets/employer/js/main.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 

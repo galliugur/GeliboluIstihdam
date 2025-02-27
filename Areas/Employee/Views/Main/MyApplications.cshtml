@@ -1,0 +1,74 @@
+@model List<GeliboluIstihdam.Areas.Employee.Models.ApplicationViewModel>
+@{
+    ViewData["Title"] = "Başvurularım";
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Başvurularım</h5>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>İlan Başlığı</th>
+                        <th>Firma</th>
+                        <th>Sektör</th>
+                        <th>Çalışma Şekli</th>
+                        <th>Başvuru Tarihi</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var basvuru in Model)
+                    {
+                        <tr>
+                            <td>@basvuru.IlanBaslik</td>
+                            <td>
+                                <div>@basvuru.FirmaAdi</div>
+                                <small class="text-muted">
+                                    @basvuru.FirmaTelefon | @basvuru.FirmaMail
+                                </small>
+                            </td>
+                            <td>@basvuru.SektorAdi</td>
+                            <td>@(basvuru.CalismaSekli switch {
+                                1 => "Tam Zamanlı",
+                                2 => "Yarı Zamanlı",
+                                3 => "Uzaktan",
+                                4 => "Stajyer",
+                                _ => "Belirsiz"
+                            })</td>
+                            <td>@basvuru.BasvuruZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge bg-@(basvuru.Durum switch {
+                                    1 => "info",
+                                    2 => "primary", 
+                                    3 => "warning",
+                                    4 => "success",
+                                    5 => "danger",
+                                    _ => "secondary"
+                                })">
+                                    @(basvuru.Durum switch {
+                                        1 => "Yeni Başvuru",
+                                        2 => "İnceleniyor",
+                                        3 => "Mülakat",
+                                        4 => "Kabul Edildi",
+                                        5 => "Reddedildi",
+                                        _ => "Belirsiz"
+                                    })
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 

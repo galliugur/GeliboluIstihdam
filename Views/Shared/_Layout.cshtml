@@ -41,13 +41,10 @@
         </div>
     </footer>
 
-    <!-- jQuery -->
+    <!-- Scripts - Sıralama önemli -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <!-- Input Mask için jQuery Input Mask kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
 
     <script>
@@ -248,5 +245,7 @@
             });
         }
     </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

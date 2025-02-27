@@ -14,7 +14,7 @@
             </div>
             <div class="modal-body">
                 <!-- Login Form -->
-                <form asp-area="Employee" asp-controller="Account" asp-action="Logon" method="post" id="employeeLoginForm" class="mt-5 mb-5">
+                <form asp-area="Employee" asp-controller="Account" asp-action="LogonPost" method="post" id="employeeLoginForm" class="mt-5 mb-5">
                     <div class="mb-3">
                         <label for="emailEmployee" class="text-light form-label">E-posta</label>
                         <input type="email" class="form-control" id="emailEmployee" name="email" placeholder="E-posta adresinizi girin" required>
@@ -127,54 +127,91 @@
     </div>
 </div>
 <!-- End Employee Register Modal -->
-<!-- Employer Login Modal-->
-<div class="modal fade" id="employerLoginModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+<!-- İşveren Giriş Modal -->
+<div class="modal fade" id="employerLoginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">İş Veren Olarak Giriş Yap</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">İş Veren Olarak Giriş Yap</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Login Form -->
-                <form asp-action="employerLogin" asp-controller="Home" method="post" class="mt-5 mb-5">
+                <form id="employerLoginForm" onsubmit="return false;">
+                    @Html.AntiForgeryToken()
                     <div class="mb-3">
                         <label for="emailEmployer" class="text-light form-label">E-posta</label>
-                        <input type="email" class="form-control" id="emailEmployer" name="email" placeholder="E-posta adresinizi girin" required>
+                        <input type="email" class="form-control" id="emailEmployer" name="email" required>
                     </div>
-                    <label for="passwordEmployer" class="text-light form-label">Şifre</label>
-
-                    <div class="input-group mb-3">
-                        <input type="password" class="form-control password-input" id="passwordEmployer" name="password" placeholder="Şifrenizi girin">
-                        <button type="button" class="btn btn-togglePassword" data-target="passwordEmployer">
-                            <i class="bi bi-eye"></i>
-                        </button>
+                    <div class="mb-3">
+                        <label for="passwordEmployer" class="text-light form-label">Şifre</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="passwordEmployer" name="password" required>
+                            <button type="button" class="btn btn-togglePassword" data-target="passwordEmployer">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
-
-                    <div class="d-flex gap-2 d-md-flex justify-content-between align-items-center">
-                        <!-- Giriş Yap Butonu -->
-                        <button type="submit" class="btn btn-gradient-m w-100 w-md-auto">Giriş Yap</button>
-                        <!-- E-Devlet ile Giriş Butonu -->
-                        <button class="btn btn-gradient-m d-flex align-items-center w-100 w-md-auto">
-                            <img src="~/assets/img/edev.png" alt="E-Devlet Logo" class="button-logo me-2" style="max-width: 20px; height: auto;">
+                    <div class="d-flex justify-content-between">
+                        <button type="button" onclick="employerLogin()" class="btn btn-gradient-m">Giriş Yap</button>
+                        <button type="button" class="btn btn-gradient-m">
+                            <img src="~/assets/img/edev.png" alt="E-Devlet" class="me-2" style="width:20px">
                             E-Devlet ile Giriş
                         </button>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <a href="#" class="text-light">Şifremi Unuttum</a>
-                        <a href="" class="text-light reset-form" data-form-id="employerLoginModal" style="text-decoration: underline;">Temizle</a>
-                    </div>
                 </form>
-                <!-- End Login Form -->
-            </div>
-            <div class="modal-footer">
             </div>
         </div>
     </div>
 </div>
-<!-- End Employer Login Modal-->
 
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            window.employerLogin = function() {
+                var email = $('#emailEmployer').val();
+                var password = $('#passwordEmployer').val();
+                var token = $('input[name="__RequestVerificationToken"]').val();
 
+                $.ajax({
+                    url: '/Employer/Account/LogonPost',
+                    type: 'POST',
+                    data: {
+                        email: email,
+                        password: password,
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#employerLoginModal').modal('hide');
+                            toastr.success(response.message);
+                            window.location.replace('http://localhost:5111/Employer/Main/Index');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Giriş yapılırken bir hata oluştu');
+                    }
+                });
+            };
+
+            // Şifre göster/gizle işlevi
+            $('.btn-togglePassword').click(function() {
+                var targetId = $(this).data('target');
+                var passwordInput = $('#' + targetId);
+                var icon = $(this).find('i');
+
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+        });
+    </script>
+}
 
 <div class="row g-4 mt-2">
     <!-- İş Arayanlar İçin -->
@@ -193,8 +230,8 @@
             </div>
 
             <div class="center-buttons">
-                <button type="button" class="btn-gradient" data-bs-toggle="modal" data-bs-target="#employeeLoginModal" data-modal-title="İş Arayan Girişi">GİRİŞ YAP</button>
-                <button type="button" class="btn-gradient" data-bs-toggle="modal" data-bs-target="#employeeRegisterModal" data-modal-title="İş Arayan Üye Ol">ÜYE OL</button>
+                <button type="button" class="btn-gradient-m" data-bs-toggle="modal" data-bs-target="#employeeLoginModal">GİRİŞ YAP</button>
+                <button type="button" class="btn-gradient-m" data-bs-toggle="modal" data-bs-target="#employeeRegisterModal">ÜYE OL</button>
             </div>
         </div>
     </div>
@@ -207,16 +244,16 @@
                 Doğru yetenekleri bulmak hiç bu kadar kolay olmamıştı. Sistemimize kayıt olun, iş ilanlarınızı yayınlayın ve size uygun çalışanları hızlıca keşfedin.
             </p>
             <div class="d-flex align-items-center mb-4">
-                <img alt="Aday havuzu simgesi" class="me-4" src="/assets/img/f7--person-3.png" />
-
+                <img alt="İşveren simgesi" class="me-4" src="~/assets/img/tabler--building.png" />
                 <div>
-                    <p class="fw-bold">Geniş Aday Havuzu</p>
-                    <p>Nitelikli adaylarla hızlı ve etkili bir şekilde bağlantı kurun</p>
+                    <p class="fw-bold">Aradığınız Yetenek Burada</p>
+                    <p>Binlerce özgeçmiş arasından size en uygun adayları bulun</p>
                 </div>
             </div>
+
             <div class="center-buttons">
-                <button type="button" class="btn-gradient" data-bs-toggle="modal" data-bs-target="#employerLoginModal" data-modal-title="İş Veren Girişi">GİRİŞ YAP</button>
-                <button class="btn-gradient" onclick="window.location.href='/Employer/Account/Register'">ÜYE OL</button>
+                <button type="button" class="btn-gradient-m" data-bs-toggle="modal" data-bs-target="#employerLoginModal">GİRİŞ YAP</button>
+                <button class="btn-gradient-m" onclick="window.location.href='/Employer/Account/Register'">ÜYE OL</button>
             </div>
         </div>
     </div>
